@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Categories for organizing templates (e.g., CT, MRI, X-Ray, Ultrasound)
+model Category {
+  id          String     @id @default(cuid())
+  name        String     @unique
+  description String?
+  icon        String?    // Icon name from lucide-react
+  color       String?    // Tailwind color class
+  templates   Template[]
+  snippets    Snippet[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+// Body parts for anatomical categorization
+model BodyPart {
+  id          String     @id @default(cuid())
+  name        String     @unique
+  description String?
+  templates   Template[]
+  snippets    Snippet[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+// Main radiology report templates
+model Template {
+  id           String     @id @default(cuid())
+  title        String
+  description  String?
+  content      String     // Full template text with placeholders
+  categoryId   String?
+  category     Category?  @relation(fields: [categoryId], references: [id])
+  bodyPartId   String?
+  bodyPart     BodyPart?  @relation(fields: [bodyPartId], references: [id])
+  modality     String?    // CT, MRI, X-Ray, Ultrasound, etc.
+  tags         String?    // Comma-separated tags for search
+  isFavorite   Boolean    @default(false)
+  usageCount   Int        @default(0)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+// Reusable snippets that can be inserted into templates
+model Snippet {
+  id          String     @id @default(cuid())
+  title       String
+  description String?
+  content     String     // Snippet text
+  categoryId  String?
+  category    Category?  @relation(fields: [categoryId], references: [id])
+  bodyPartId  String?
+  bodyPart    BodyPart?  @relation(fields: [bodyPartId], references: [id])
+  modality    String?    // CT, MRI, X-Ray, Ultrasound, etc.
+  tags        String?    // Comma-separated tags for search
+  isFavorite  Boolean    @default(false)
+  usageCount  Int        @default(0)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
