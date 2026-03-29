@@ -1,5 +1,46 @@
 # Cloudflare Deployment Guide
 
+## D1 Database Setup (Completed)
+
+The D1 database has been set up for this project. Here are the configuration details:
+
+### Database Information
+- **Database Name**: radiology-templates
+- **Database ID**: dd9f5a53-9729-4798-b864-993da1ba69fc
+- **Binding Name**: DB
+
+### wrangler.toml Configuration
+```toml
+[[d1_databases]]
+binding = "DB"
+database_name = "radiology-templates"
+database_id = "dd9f5a53-9729-4798-b864-993da1ba69fc"
+```
+
+### Tables Created
+The following tables have been created in D1:
+- Category
+- BodyPart
+- Template
+- Snippet
+
+### Prisma Schema
+The existing Prisma schema already uses SQLite provider, which is compatible with D1:
+```prisma
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+```
+
+### Environment Variables
+For local development, update your `.env` file to use the local D1 database:
+```
+DATABASE_URL="file:./prisma/dev.db"
+```
+
+For production with D1, you'll need to set `DATABASE_URL` to a valid connection string or use environment variable binding in your Cloudflare Workers configuration.
+
 ## Important Notes
 
 This application uses SQLite with Prisma, which requires a Node.js runtime. Cloudflare Pages uses Edge Runtime which is not compatible with Prisma + SQLite directly.
@@ -18,30 +59,24 @@ This application uses SQLite with Prisma, which requires a Node.js runtime. Clou
    wrangler login
    ```
 
-3. Create a D1 database:
+3. Create a D1 database (already done):
    ```bash
    wrangler d1 create radiology-templates
    ```
 
-4. Update `wrangler.toml` with your database ID
+4. Update `wrangler.toml` with your database ID (already done)
 
 5. Modify `src/lib/db.ts` to use D1:
-   ```typescript
-   // For Cloudflare D1
-   import { PrismaClient } from '@prisma/client'
-   
-   export const db = new PrismaClient({
-     datasourceUrl: process.env.DATABASE_URL,
-   })
-   ```
+    ```typescript
+    // For Cloudflare D1
+    import { PrismaClient } from '@prisma/client'
+    
+    export const db = new PrismaClient({
+      datasourceUrl: process.env.DATABASE_URL,
+    })
+    ```
 
-6. Update Prisma schema for D1:
-   ```prisma
-   datasource db {
-     provider = "sqlite"
-     url      = env("DATABASE_URL")
-   }
-   ```
+6. Update Prisma schema for D1 (already done - uses SQLite)
 
 ### Option 2: Deploy to Cloudflare Pages with External Database
 
@@ -89,4 +124,3 @@ No configuration needed - SQLite will work in Vercel's serverless functions.
          - "3000:3000"
        volumes:
          - ./db:/app/db
-   ```

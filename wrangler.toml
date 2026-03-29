@@ -1,13 +1,17 @@
-# Cloudflare Pages Configuration
+# Cloudflare Worker Configuration with Next.js
 name = "radiology-templates"
-compatibility_date = "2024-01-01"
+compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 
-# For D1 database binding
-# [[d1_databases]]
-# binding = "DB"
-# database_name = "radiology-templates"
-# database_id = "your-database-id"
+# Use _worker.js as the entry point for Next.js
+main = "./_worker.js"
+
+# D1 database binding
+[[d1_databases]]
+binding = "DB"
+database_name = "radiology-templates"
+database_id = "dd9f5a53-9729-4798-b864-993da1ba69fc"
 
 [vars]
 NODE_VERSION = "20"
+

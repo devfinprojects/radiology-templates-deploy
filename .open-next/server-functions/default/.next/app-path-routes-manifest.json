@@ -1,0 +1,16 @@
+{
+  "/api/auth/check/route": "/api/auth/check",
+  "/api/auth/login/route": "/api/auth/login",
+  "/api/auth/logout/route": "/api/auth/logout",
+  "/api/body-parts/route": "/api/body-parts",
+  "/api/categories/route": "/api/categories",
+  "/api/route": "/api",
+  "/api/search/route": "/api/search",
+  "/api/snippets/[id]/route": "/api/snippets/[id]",
+  "/api/snippets/route": "/api/snippets",
+  "/_not-found/page": "/_not-found",
+  "/api/templates/[id]/route": "/api/templates/[id]",
+  "/api/templates/route": "/api/templates",
+  "/login/page": "/login",
+  "/page": "/"
+}

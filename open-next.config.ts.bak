@@ -1,0 +1,11 @@
+const config = {
+  target: "cloudflare",
+  d1Databases: {
+    DB: "radiology-templates",
+  },
+  serverFunctions: {
+    default: {},
+  },
+};
+
+export default config;

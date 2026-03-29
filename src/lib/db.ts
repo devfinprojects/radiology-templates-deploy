@@ -1,13 +1,10 @@
-import { PrismaClient } from '@prisma/client'
+// D1 Database Helper - Migrated from Prisma
+// This file now serves as a compatibility layer
+// All queries have been migrated to src/lib/d1.ts using Cloudflare D1 Direct SQL API
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined
-}
+// Re-export all D1 functions for backward compatibility
+export * from './d1'
 
-export const db =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    log: ['query'],
-  })
-
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = db
+// Legacy Prisma client export (no longer used)
+// The application now uses D1 directly via getCloudflareContext() from @opennextjs/cloudflare
+export const db = null
