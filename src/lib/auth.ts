@@ -1,33 +1,30 @@
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
+import { SESSION_COOKIE, SESSION_DURATION, DEFAULT_CREDENTIALS } from './constants'
 
-// Default credentials
-export const DEFAULT_CREDENTIALS = {
-  username: 'admin',
-  password: 'password'
-}
-
-// Session cookie name
-export const SESSION_COOKIE = 'radiology-session'
-
-// Session duration (24 hours)
-export const SESSION_DURATION = 24 * 60 * 60 * 1000
-
-// Simple session token generator
+// Session token generator using crypto API (more secure than Math.random)
 export function generateSessionToken(): string {
-  return Buffer.from(
-    Math.random().toString(36).substring(2) + 
-    Date.now().toString(36) + 
-    Math.random().toString(36).substring(2)
-  ).toString('base64')
+  const array = new Uint8Array(32)
+  crypto.getRandomValues(array)
+  return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('')
 }
 
-// Verify credentials
+// Verify credentials with environment variable support
 export function verifyCredentials(username: string, password: string): boolean {
-  return username === DEFAULT_CREDENTIALS.username && password === DEFAULT_CREDENTIALS.password
+  // In production, use environment variables or a secure auth provider
+  if (process.env.AUTH_USERNAME && process.env.AUTH_PASSWORD) {
+    return (
+      username === process.env.AUTH_USERNAME &&
+      password === process.env.AUTH_PASSWORD
+    )
+  }
+  return (
+    username === DEFAULT_CREDENTIALS.username &&
+    password === DEFAULT_CREDENTIALS.password
+  )
 }
 
-// Set session cookie
+// Set session cookie with security options
 export async function setSessionCookie(token: string) {
   const cookieStore = await cookies()
   cookieStore.set(SESSION_COOKIE, token, {
@@ -35,7 +32,7 @@ export async function setSessionCookie(token: string) {
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     maxAge: SESSION_DURATION / 1000,
-    path: '/'
+    path: '/',
   })
 }
 
@@ -58,17 +55,19 @@ export async function isAuthenticated(): Promise<boolean> {
 }
 
 // Middleware helper to check auth
-export async function checkAuth(request: NextRequest): Promise<NextResponse | null> {
+export async function checkAuth(
+  request: NextRequest
+): Promise<NextResponse | null> {
   const sessionCookie = request.cookies.get(SESSION_COOKIE)?.value
   const isLoginPage = request.nextUrl.pathname === '/login'
-  
+
   if (!sessionCookie && !isLoginPage) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
-  
+
   if (sessionCookie && isLoginPage) {
     return NextResponse.redirect(new URL('/', request.url))
   }
-  
+
   return null
 }
